@@ -1,0 +1,133 @@
+create table employee140(
+e_no int,
+e_name varchar(40),
+designation varchar(40),
+salry int,
+primary key(e_no));
+
+insert into employee140 values(107,'king','ceo',45000);
+insert into employee140 values(102,'Blake','Manager',12850);
+insert into employee140 values(104,'jones','clerk',5000);
+
+
+CREATE OR REPLACE TRIGGER backup
+BEFORE UPDATE ON employee140
+FOR EACH ROW
+WHEN (NEW.e_no > 0)
+DECLARE
+  sal_diff NUMBER;
+BEGIN
+  sal_diff := :NEW.<salary_column> - :OLD.<salary_column>;
+
+  DBMS_OUTPUT.PUT_LINE('OLD SALARY: ' || :OLD.<salary_column>);
+  DBMS_OUTPUT.PUT_LINE('NEW SALARY: ' || :NEW.<salary_column>);
+  DBMS_OUTPUT.PUT_LINE('SALARY DIFFERENCE: ' || sal_diff);
+END;
+/
+
+
+
+update employee140 set salry=50000 where e_no=107;
+
+create table employee1001(
+employee_id NUMBER PRIMARY KEY,
+emp_name VARCHAR2(100),
+salary NUMBER);
+
+CREATE TABLE salary_audit1007(
+audit_id NUMBER PRIMARY KEY,
+employee_id NUMBER,
+OLD_SALARY NUMBER,
+NEW_SALARY NUMBER,
+CHANGE_DATE TIMESTAMP
+);
+CREATE SEQUENCE seq_salary_audit1007 START WITH 1 INCREMENT BY 1;
+
+
+
+INSERT INTO salary_audit1007
+VALUES (seq_salary_audit1007.NEXTVAL, 1, 45000, 50000, SYSTIMESTAMP);
+
+INSERT INTO salary_audit1007
+VALUES (seq_salary_audit1007.NEXTVAL, 2, 55000, 60000, SYSTIMESTAMP);
+
+INSERT INTO salary_audit1007
+VALUES (seq_salary_audit1007.NEXTVAL, 3, 50000, 55000, SYSTIMESTAMP);
+
+INSERT INTO salary_audit1007
+VALUES (seq_salary_audit1007.NEXTVAL, 4, 60000, 65000, SYSTIMESTAMP);
+
+INSERT INTO salary_audit1007
+VALUES (seq_salary_audit1007.NEXTVAL, 5, 65000, 70000, SYSTIMESTAMP);
+
+
+
+INSERT INTO employee1001 VALUES (1, 'Alice Johnson', 50000);
+INSERT INTO employee1001 VALUES (2, 'Bob Smith', 60000);
+INSERT INTO employee1001 VALUES (3, 'Charlie Brown', 55000);
+INSERT INTO employee1001 VALUES (4, 'Diana Miller', 65000);
+INSERT INTO employee1001 VALUES (5, 'Ethan Davis', 70000);
+
+INSERT 
+
+
+CREATE OR REPLACE TRIGGER backup
+BEFORE UPDATE ON employee140
+FOR EACH ROW
+WHEN (NEW.NEW_SALARY<>OLD.OLD_SALARY)
+DECLARE
+ v_audit_id NUMBER;
+BEGIN
+ --GENERATE A UNIQUE 
+ SELECT seq_salary_audit.NEXTVAL INTO v_audit_id from DUAL;
+
+ --insert into the change details
+ 	INSERT INTO salary_audit(audit_id,employee_id,OLD_SALARY,NEW_SALARY,CHANGE_DATE)
+	VALUES(v_audit_id,:OLD.employee_id,:OLD.OLD_SALARY,:NEW.NEW_SALARY,SYSTEMSTAMP);
+END;
+/
+
+
+CREATE OR REPLACE TRIGGER backup11
+BEFORE UPDATE OF salary ON employee140
+FOR EACH ROW
+WHEN (NEW.salary <> OLD.salary)
+BEGIN
+    INSERT INTO salary_audit1007
+    (audit_id, employee_id, old_salary, new_salary, change_date)
+    VALUES
+    (
+        seq_salary_audit1007.NEXTVAL,
+        :OLD.employee_id,
+        :OLD.salary,
+        :NEW.salary,
+        SYSTIMESTAMP
+    );
+END;
+/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
